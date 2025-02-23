@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import Login from './Login';
 import Signup from './Signup';
-import './App.css'; // Import your CSS for animations
+import './App.css';
 
 function App() {
   const [isSignup, setIsSignup] = useState(false);
   const [loggedInEmail, setLoggedInEmail] = useState(null);
   const [showIntro, setShowIntro] = useState(true);
   const [showMainPage, setShowMainPage] = useState(false);
-  const [showLogin, setShowLogin] = useState(false); // State to control showing login form
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
-    // Automatically show main page after intro screen
+ 
     if (showIntro) {
       setTimeout(() => {
         setShowIntro(false);
-        setShowMainPage(true); // Show the main page after intro
-      }, 4000); // Show intro for 4 seconds before transitioning
+        setShowMainPage(true);
+      }, 4000);
     }
   }, [showIntro]);
 
@@ -25,7 +25,7 @@ function App() {
 
   const handleRegister = (email) => {
     setLoggedInEmail(email);
-    setIsSignup(false); // Switch to login or profile view after registration
+    setIsSignup(false);
   };
 
   const handleLogin = (email) => {
@@ -33,8 +33,8 @@ function App() {
   };
 
   const handleStartNow = () => {
-    setShowMainPage(false);  // Hide main page
-    setShowLogin(true);      // Show the login page
+    setShowMainPage(false); 
+    setShowLogin(true);     
   };
 
   return (
