@@ -1,145 +1,173 @@
-import React, { useState } from 'react'; // Make sure this line is at the top
-import './SignUpLogin.css';
+import React, { useState } from 'react';
+import axios from 'axios';
 import ReCAPTCHA from "react-google-recaptcha";
-
+import './SignUpLogin.css';
 
 const Signup = ({ onSwitchToLogin, onRegister }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [username, setUsername] = useState('');
-  const [accountType, setAccountType] = useState('personal');
-  const [gender, setGender] = useState('');
-  const [capVal,setCapVal]=useState('null');
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    username: '',
+    accountType: 'personal',
+    gender: '',
+  });
+  const [captchaValue, setCaptchaValue] = useState(null);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password === confirmPassword) {
-      onRegister({ email, username, accountType, gender }); // Pass all relevant information
-    } else {
-      alert('Passwords do not match!');
+    setError('');
+    setSuccessMessage('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match!');
+      return;
+    }
+
+    if (!captchaValue) {
+      setError('Please complete the reCAPTCHA verification.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/signup', {
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        accountType: formData.accountType,
+        gender: formData.gender,
+        recaptcha: captchaValue,
+      });
+
+      if (response.status === 201) {
+        setSuccessMessage('Account created successfully! Redirecting...');
+        setTimeout(() => {
+          onSwitchToLogin();
+        }, 2000);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Signup failed. Please try again.');
     }
   };
 
   return (
-    <div className="container">
-      <h2 className="text-center">Sign Up</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="username" className="form-label">
-            Username
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter your username"
-            required
-          />
-        </div>
+    <div className="container mt-5">
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card shadow p-4">
+            <h2 className="text-center mb-4">Sign Up</h2>
 
-        {/* Email Field */}
-        <div className="form-group">
-          <label htmlFor="email" className="form-label">
-            Email address
-          </label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email address"
-            required
-          />
-        </div>
+            {error && <div className="alert alert-danger">{error}</div>}
+            {successMessage && <div className="alert alert-success">{successMessage}</div>}
 
-        {/* Password Field */}
-        <div className="form-group">
-          <label htmlFor="password" className="form-label">
-            Password
-          </label>
-          <input
-            type="password"
-            className="form-control"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            required
-          />
-        </div>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Username</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="Enter your username"
+                  required
+                />
+              </div>
 
-        {/* Confirm Password Field */}
-        <div className="form-group">
-          <label htmlFor="confirmPassword" className="form-label">
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            className="form-control"
-            id="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Re-enter your password"
-            required
-          />
-        </div>
+              <div className="form-group mt-3">
+                <label>Email</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
 
-        {/* Account Type Field */}
-        <div className="form-group">
-          <label htmlFor="accountType" className="form-label">
-            Account Type
-          </label>
-          <select
-            id="accountType"
-            className="form-select"
-            value={accountType}
-            onChange={(e) => setAccountType(e.target.value)}
-          >
-            <option value="personal">Personal Use</option>
-            <option value="professional">Professional Use</option>
-          </select>
-        </div>
+              <div className="form-group mt-3">
+                <label>Password</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
 
-        {/* Gender Field (Optional) */}
-        <div className="form-group">
-          <label htmlFor="gender" className="form-label">
-            Gender (Optional)
-          </label>
-          <select
-            id="gender"
-            className="form-select"
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-          >
-            <option value="">Select Gender </option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div>
-          <ReCAPTCHA
-            sitekey="6Lf6WdwqAAAAAIuuTzra27uTp1KBGkNJ9MEanzdM"
-            onChange={ (val)=> setCapVal(val)}
-          />
-        </div>
-        <p></p>
-        <button type="submit" className="btn btn-primary btn-block">
-          Sign Up
-        </button>
-      </form>
+              <div className="form-group mt-3">
+                <label>Confirm Password</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Re-enter your password"
+                  required
+                />
+              </div>
 
-      <p>
-        <p></p>
-        <p></p>
-        Already have an account?{' '}
-        <button onClick={onSwitchToLogin} className="btn btn-link">
-          Login
-        </button>
-      </p>
+              <div className="form-group mt-3">
+                <label>Account Type</label>
+                <select
+                  name="accountType"
+                  className="form-select"
+                  value={formData.accountType}
+                  onChange={handleChange}
+                >
+                  <option value="personal">Personal Use</option>
+                  <option value="professional">Professional Use</option>
+                </select>
+              </div>
+
+              <div className="form-group mt-3">
+                <label>Gender (Optional)</label>
+                <select
+                  name="gender"
+                  className="form-select"
+                  value={formData.gender}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className="form-group text-center mt-3">
+                <ReCAPTCHA
+                  sitekey="YOUR_RECAPTCHA_SITE_KEY"
+                  onChange={setCaptchaValue}
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary btn-block mt-4">
+                Sign Up
+              </button>
+            </form>
+
+            <p className="text-center mt-3">
+              Already have an account?{' '}
+              <button onClick={onSwitchToLogin} className="btn btn-link">
+                Login
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
