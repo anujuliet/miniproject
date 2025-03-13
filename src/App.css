@@ -1,0 +1,81 @@
+
+body {
+  background: url("C:/React Project/my-app/src/assets/fin.jpg") no-repeat center center fixed;
+  background-size: cover;
+}
+/* Centered Intro Screen */
+.intro-container {
+  background-color: rgba(34, 34, 34, 0.8); /* Dark overlay */
+  color: white;
+  text-align: center;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* App Name */
+.app-name {
+  font-size: 3rem;
+  color: #40648a;
+}
+
+/* Intro Text */
+.intro-text {
+  font-size: 1.5rem;
+  color: #6c757d;
+}
+
+/* Navbar Logo */
+.logo {
+  height: 40px;
+}
+
+/* Home Page Styling */
+.home-container {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.8); /* Light overlay to improve text readability */
+  padding: 50px;
+  border-radius: 10px;
+}
+/* Remove unnecessary background from form container */
+.form-container {
+  background: transparent !important;  /* Removes the white box */
+  box-shadow: none !important;  /* Removes any shadow effect */
+  border: none !important;
+}
+
+/* Ensure the background is visible */
+body {
+  background: url("C:/React Project/my-app/src/assets/fin.jpg") no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* Adjust form width if necessary */
+.form-wrapper {
+  max-width: 500px;  /* Adjust width */
+  padding: 20px;
+  background: rgba(255, 253, 253, 0.1); /* Optional slight transparency */
+  border-radius: 10px;
+}
+/* ✅ Fade-in and Fade-out Effect */
+.fade-in {
+  animation: fadeIn 1s ease-in;
+}
+.fade-out {
+  animation: fadeOut 1s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ✅ Prevent Login/Signup from Overlapping Header */
+.page-container {
+  padding-top: 180px; /* Adjusted to keep content below the header */
+}
