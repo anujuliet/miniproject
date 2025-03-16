@@ -1,0 +1,26 @@
+.home {
+    padding: 20px;
+  }
+  
+  .top-right {
+    text-align: right;
+    margin-bottom: 20px;
+  }
+  
+  .middle-graph {
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .bottom-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .bottom-actions button {
+    width: 100%;
+  }
