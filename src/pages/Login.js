@@ -1,32 +1,38 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../components/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { setAuthState } = useAuth();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/login", credentials, { withCredentials: true });
 
-    // Simulating login success (No backend authentication)
-    if (credentials.email && credentials.password) {
-      navigate("/dashboard"); // Redirect to dashboard after "login"
-    } else {
-      setError("Please enter email and password.");
+      localStorage.setItem("authToken", response.data.token);
+      setAuthState({ isAuthenticated: true, userType: response.data.userType });
+
+      navigate("/home"); // ✅ Redirect to home after login
+    } catch (error) {
+      setError("Invalid email or password.");
     }
   };
 
   return (
-    <div className="login-container d-flex align-items-center justify-content-center vh-100">
-      <div className="card login-card p-4 shadow-lg">
+    <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className="card p-4 shadow-lg" style={{ width: "400px" }}>
         <h2 className="text-center mb-4">Login</h2>
 
         {error && <div className="alert alert-danger">{error}</div>}
 
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label>Email</label>
+            <label className="fw-bold">Email</label>
             <input
               type="email"
               className="form-control"
@@ -38,7 +44,7 @@ const Login = () => {
           </div>
 
           <div className="form-group mt-3">
-            <label>Password</label>
+            <label className="fw-bold">Password</label>
             <input
               type="password"
               className="form-control"
