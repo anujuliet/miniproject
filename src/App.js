@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, Navigate, Link } from "react-router-dom"; // ❌ Removed BrowserRouter
+import { Routes, Route, Navigate, Link } from "react-router-dom";
 import axios from "axios";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Personal from "./pages/Personal";
-import Professional from "./pages/Professional";
+import { useAuth } from "./components/AuthContext"; // ✅ Auth Context
 import ProtectedRoute from "./components/ProtectedRoute";
-import { useAuth } from "./components/AuthContext"; // ✅ Corrected AuthContext import
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 import logo from "./assets/logo.png";
+
+// ✅ Import Pages
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Personal from "./pages/Personal";
+import Professional from "./pages/Professional";
+import AddIncome from "./pages/AddIncome";
+import AddExpense from "./pages/AddExpense";
+import AddRtransaction from "./pages/AddRtransaction";
+import AddBudget from "./pages/AddBudget";
+import ViewTransactionHistory from "./pages/ViewTransactionHistory";
+import Welcome from "./pages/Welcome"; // ✅ New Welcome Page
 
 // ✅ Navbar Component
 const Navbar = () => {
@@ -36,13 +45,19 @@ const Navbar = () => {
   );
 };
 
-// ✅ Home Screen
-const Home = () => {
+// ✅ Intro Screen (Shown for 3 seconds)
+const IntroScreen = ({ onFinish }) => {
+  useEffect(() => {
+    const timer = setTimeout(onFinish, 3000);
+    return () => clearTimeout(timer);
+  }, [onFinish]);
+
   return (
-    <div className="home-container d-flex flex-column justify-content-center align-items-center vh-100 fade-in">
-      <h1 className="mb-3">Welcome to CAPITAL CORE</h1>
-      <p className="mb-4">Manage your finances with ease.</p>
-      <Link to="/login" className="btn btn-primary btn-lg">Start Now</Link>
+    <div className="intro-container d-flex justify-content-center align-items-center vh-100 fade-in">
+      <div className="text-center">
+        <h1 className="app-name">CAPITAL CORE</h1>
+        <p className="intro-text">Precision in every financial move.</p>
+      </div>
     </div>
   );
 };
@@ -52,15 +67,10 @@ const App = () => {
   const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
-    const introTimer = setTimeout(() => setShowIntro(false), 3000);
-    return () => clearTimeout(introTimer);
-  }, []);
-
-  useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/auth/profile", { withCredentials: true });
-        setAuthState({ isAuthenticated: true, userType: response.data.userType }); // ✅ Store user type
+        setAuthState({ isAuthenticated: true, userType: response.data.userType });
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -74,21 +84,29 @@ const App = () => {
   return (
     <>
       {showIntro ? (
-        <div className="intro-container d-flex justify-content-center align-items-center vh-100 fade-in">
-          <div className="text-center">
-            <h1 className="app-name">CAPITAL CORE</h1>
-            <p className="intro-text">Precision in every financial move.</p>
-          </div>
-        </div>
+        <IntroScreen onFinish={() => setShowIntro(false)} />
       ) : (
         <>
           <Navbar />
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/personal" />} />
-            <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to="/personal" />} />
+            {/* ✅ Show Welcome Page First */}
+            <Route path="/" element={<Welcome />} />
+
+            {/* ✅ Authentication Routes */}
+            <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/home" />} />
+            <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to="/home" />} />
+
+            {/* ✅ Home Page (Dashboard After Login) */}
+            <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+
+            {/* ✅ Other Protected Routes */}
             <Route path="/personal" element={<ProtectedRoute><Personal /></ProtectedRoute>} />
             <Route path="/professional" element={<ProtectedRoute><Professional /></ProtectedRoute>} />
+            <Route path="/addIncome" element={<ProtectedRoute><AddIncome /></ProtectedRoute>} />
+            <Route path="/addExpense" element={<ProtectedRoute><AddExpense /></ProtectedRoute>} />
+            <Route path="/addRtransaction" element={<ProtectedRoute><AddRtransaction /></ProtectedRoute>} />
+            <Route path="/addBudget" element={<ProtectedRoute><AddBudget /></ProtectedRoute>} />
+            <Route path="/viewTransactions" element={<ProtectedRoute><ViewTransactionHistory /></ProtectedRoute>} />
           </Routes>
         </>
       )}
